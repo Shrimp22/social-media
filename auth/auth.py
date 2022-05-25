@@ -43,7 +43,7 @@ def login():
 
 
 
-@bp.route('change-password', methods=[("POST")])
+@bp.route('/change-password', methods=[("POST")])
 def change_password():
     username = session.get('username')
     new_password = request.json.get('new_pw')
@@ -57,3 +57,16 @@ def change_password():
         return jsonify(detail="Password was updated"), 200
     else:
         return jsonify(detail="Error! You already use this password"), 409
+
+
+
+@bp.route('/change-username', methods=[("POST")])
+def change_username():
+    username = session.get('username')
+    new_username = request.json.get('new_username')
+    if username == new_username:
+        return jsonify(detail="Error! You already use that username"), 409
+    get_data = User.query.filter(User.username == username).first()
+    get_data.username = new_username
+    db.session.commit()
+    return jsonify(detail="Username was changed"), 200

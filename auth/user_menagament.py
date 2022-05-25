@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request, session
 from db import db
 from model import User
-
+#from flask_bcrypt import Bcrypt
+from .auth import bc
+#bc = Bcrypt()
 bp = Blueprint('user_menagament',__name__, url_prefix="/admin")
 # Helper function to check user status is admin or not (boolean type)
 def is_admin(user):
@@ -41,5 +43,19 @@ def delete_user():
         return jsonify(detail="Error! You are not admin"), 409
 
 
+
+@bp.route('/update-password', methods=[("POST")])
+def update_passowrd():
+    username = session.get('username')
+    user_for_change = request.json.get('username_for_change')
+    new_password = request.json.get('new_pw')
+    get_username = User.query.filter(User.username == user_for_change).first()
+    if is_admin(username):
+        hash_pw = bc.generate_password_hash(new_password)
+        get_username.password = hash_pw
+        db.session.commit()
+        return jsonify(detail="Password was changed"), 200
+    else:
+        return jsonify(detail="Error! You are not admin"), 409
 
 
