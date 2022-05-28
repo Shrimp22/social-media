@@ -58,4 +58,17 @@ def update_passowrd():
     else:
         return jsonify(detail="Error! You are not admin"), 409
 
+@bp.route('/update-username', methods=[("POST")])
+def update_username():
+    username = session.get('username')
+    username_for_change = request.json.get('username_for_change')
+    new_username = request.json.get('new_username')
+    if is_admin(username):
+        get_username = User.query.filter(User.username == username_for_change).first()
+        get_username.username = new_username
+        db.session.commit()
+        return jsonify(detail = "Username was changed"), 200
+
+    else:
+        return jsonify(detail = "You are not admin"), 409
 
